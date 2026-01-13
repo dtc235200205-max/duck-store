@@ -140,6 +140,27 @@
             transform: scale(1.1);
         }
 
+        .balance-link {
+            background: rgba(255, 193, 7, 0.15) !important;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.8rem !important;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        .balance-link:hover {
+            background: rgba(255, 193, 7, 0.25) !important;
+            border-color: rgba(255, 193, 7, 0.6);
+            color: #fbbf24 !important;
+            transform: translateY(-2px);
+        }
+
+        .balance-text {
+            color: #fbbf24;
+            font-weight: 800;
+        }
+
         .cart-badge {
             position: absolute;
             top: -12px;
@@ -434,6 +455,12 @@
                         </a>
                     </li>
                     {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link balance-link" href="{% url 'account_balance' %}">
+                            <i class="fas fa-wallet me-1"></i>
+                            <span class="balance-text">{{ user.profile.balance|floatformat:0 }}đ</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'order_list' %}"><i class="fas fa-list me-1"></i>Đơn hàng</a>
                     </li>
