@@ -23,9 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-g6fi+vtx03#+m)@l%5th#2itgt0t9l1o3vl=d2c@#03@f_fw8&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+import os
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']  # Cho phép truy cập từ bất kỳ địa chỉ IP nào
+ALLOWED_HOSTS = ['*']  # Cho phép truy cập từ bất kỳ địa chỉ nào
 
 
 # Application definition
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add Whitenoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -127,3 +129,10 @@ LOGIN_REDIRECT_URL = 'home'
 
 # Email settings (for password reset)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Console output for development
+
+# Whitenoise for static files on Railway
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Static files collection
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'

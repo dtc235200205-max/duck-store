@@ -1,1 +1,1 @@
-web: python manage.py runserver 0.0.0.0:$PORT
+web: gunicorn accessory_store.wsgi --log-file -
