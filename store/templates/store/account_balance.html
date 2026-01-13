@@ -1,0 +1,185 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Số dư tài khoản - Duck Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <!-- Header -->
+            <div class="gradient-card mb-5 text-white p-5 rounded-lg shadow-lg">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-2"><i class="fas fa-wallet me-2"></i>Số dư tài khoản</h2>
+                        <p class="mb-0 opacity-90">Xin chào, {{ request.user.first_name|default:request.user.username }}!</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="fs-1 fw-bold text-warning">{{ balance|floatformat:2 }}đ</div>
+                        <small class="opacity-90">Số dư hiện tại</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shopping-bag text-primary fa-2x mb-2"></i>
+                            <h6 class="card-title text-muted">Tổng chi tiêu</h6>
+                            <h4 class="text-danger">{{ total_spent|floatformat:2 }}đ</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-box text-success fa-2x mb-2"></i>
+                            <h6 class="card-title text-muted">Đơn hàng</h6>
+                            <h4 class="text-success">{{ orders_count }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <a href="{% url 'add_balance' %}" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-plus-circle me-2"></i>Nạp tiền
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'balance_history' %}" class="btn btn-outline-primary btn-lg w-100">
+                        <i class="fas fa-history me-2"></i>Lịch sử giao dịch
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-recent fa-history me-2"></i>Đơn hàng gần đây</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Ngày</th>
+                                        <th>Trạng thái</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_orders %}
+                                        <tr>
+                                            <td><strong>#{{ order.id }}</strong></td>
+                                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                                            <td>
+                                                <span class="badge badge-status badge-{{ order.status|lower }}">
+                                                    {% if order.status == 'Pending' %}
+                                        Chờ duyệt
+                                    {% elif order.status == 'Approved' %}
+                                        Đã duyệt
+                                    {% elif order.status == 'Shipping' %}
+                                        Đang giao
+                                    {% elif order.status == 'Completed' %}
+                                        Hoàn thành
+                                    {% elif order.status == 'Cancelled' %}
+                                        Đã hủy
+                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td><strong>{{ order.total_price|floatformat:2 }}đ</strong></td>
+                                            <td>
+                                                <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>Bạn chưa có đơn hàng nào. <a href="{% url 'product_list' %}">Bắt đầu mua sắm</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Thông tin tài khoản</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Tên đăng nhập:</strong> {{ request.user.username }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Email:</strong> {{ request.user.email }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Tên:</strong> {{ request.user.first_name }} {{ request.user.last_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Thành viên từ:</strong> {{ request.user.date_joined|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.gradient-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.badge-status {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.badge-pending {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-approved {
+    background-color: #17a2b8;
+}
+
+.badge-shipping {
+    background-color: #0066ff;
+}
+
+.badge-completed {
+    background-color: #28a745;
+}
+
+.badge-cancelled {
+    background-color: #dc3545;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+}
+
+body.dark-mode .gradient-card {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+}
+</style>
+{% endblock %}

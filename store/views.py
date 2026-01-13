@@ -2,12 +2,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Product, Category, Order, OrderItem, Comment, Notification
+from .models import Product, Category, Order, OrderItem, Comment, Notification, UserProfile
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .forms import UserProfileForm
+from .forms import UserProfileForm, UserProfileExtendedForm
 import json
 
 def home(request):
@@ -203,3 +203,56 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'store/change_password.html', {'form': form})
+@login_required
+def account_balance(request):
+    """Hiển thị số dư tài khoản người dùng"""
+    try:
+        user_profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
+    
+    # Tính toán tổng chi tiêu và chi tiêu gần đây
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    total_spent = sum(order.total_price for order in orders)
+    
+    context = {
+        'balance': user_profile.balance,
+        'total_spent': total_spent,
+        'orders_count': orders.count(),
+        'recent_orders': orders[:5],
+    }
+    return render(request, 'store/account_balance.html', context)
+
+@login_required
+def add_balance(request):
+    """Thêm tiền vào tài khoản"""
+    if request.method == 'POST':
+        amount = request.POST.get('amount', 0)
+        try:
+            amount = float(amount)
+            if amount > 0:
+                user_profile = request.user.profile
+                user_profile.balance += amount
+                user_profile.save()
+                messages.success(request, f'Đã nạp {amount:,.2f}đ vào tài khoản!')
+                return redirect('account_balance')
+            else:
+                messages.error(request, 'Số tiền phải lớn hơn 0!')
+        except ValueError:
+            messages.error(request, 'Số tiền không hợp lệ!')
+    
+    return render(request, 'store/add_balance.html')
+
+@login_required
+def balance_history(request):
+    """Hiển thị lịch sử giao dịch"""
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    balance_info = {
+        'current_balance': request.user.profile.balance,
+        'total_spent': sum(order.total_price for order in orders),
+    }
+    context = {
+        'orders': orders,
+        'balance_info': balance_info,
+    }
+    return render(request, 'store/balance_history.html', context)

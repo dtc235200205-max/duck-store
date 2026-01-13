@@ -1,7 +1,29 @@
 from django.contrib import admin
-from .models import Role, Category, Product, Order, OrderItem, Comment, Notification
+from .models import Role, Category, Product, Order, OrderItem, Comment, Notification, UserProfile
 
 # Register your models here.
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'balance', 'phone', 'created_at')
+    list_filter = ('created_at', 'updated_at')
+    search_fields = ('user__username', 'user__email', 'phone')
+    readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        ('User Info', {
+            'fields': ('user',)
+        }),
+        ('Account Balance', {
+            'fields': ('balance',)
+        }),
+        ('Contact', {
+            'fields': ('phone', 'address', 'avatar')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):

@@ -1,7 +1,38 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
+
+class UserProfile(models.Model):
+    """Mở rộng Django User model với thông tin bổ sung"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00, help_text="Số dư tài khoản")
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Hồ sơ người dùng"
+        verbose_name_plural = "Hồ sơ người dùng"
+
+    def __str__(self):
+        return f"Hồ sơ của {self.user.username}"
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """Tự động tạo UserProfile khi tạo User mới"""
+    if created:
+        UserProfile.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    """Tự động lưu UserProfile"""
+    if hasattr(instance, 'profile'):
+        instance.profile.save()
 
 class Role(models.Model):
     name = models.CharField(max_length=100)

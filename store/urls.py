@@ -29,4 +29,7 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notifications'),
     path('profile/', views.profile, name='profile'),
     path('change-password/', views.change_password, name='change_password'),
+    path('account/balance/', views.account_balance, name='account_balance'),
+    path('account/add-balance/', views.add_balance, name='add_balance'),
+    path('account/balance-history/', views.balance_history, name='balance_history'),
 ]
