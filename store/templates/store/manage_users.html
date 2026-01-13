@@ -1,0 +1,48 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Manage Users - Accessory Store{% endblock %}
+
+{% block content %}
+<h2>Manage Users</h2>
+
+<div class="table-responsive mt-4">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Is Staff</th>
+                <th>Is Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>#{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {% if user.is_staff %}
+                    <span class="badge bg-success">Yes</span>
+                    {% else %}
+                    <span class="badge bg-secondary">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'admin:auth_user_change' user.id %}" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

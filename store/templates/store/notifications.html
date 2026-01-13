@@ -1,0 +1,26 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Notifications - Accessory Store{% endblock %}
+
+{% block content %}
+<h2>Notifications 🔔</h2>
+
+<div class="mt-4">
+    {% if notifications %}
+    <div class="list-group">
+        {% for notification in notifications %}
+        <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">{{ notification.created_at|date:"M d, Y H:i" }}</h6>
+            </div>
+            <p class="mb-1">{{ notification.message }}</p>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No new notifications.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
